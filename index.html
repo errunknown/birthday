@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gimtadienio Quizas</title>
+    <style>
+        :root {
+            --primary-color: #ff6b8b;
+            --secondary-color: #ffd166;
+            --accent-color: #5efad0;
+            --dark-color: #073b4c;
+            --light-color: #f8f9fa;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #ffafbd, #ffc3a0);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            color: var(--dark-color);
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        header {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            padding: 2rem;
+            text-align: center;
+            color: white;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .quiz-container {
+            padding: 2rem;
+        }
+
+        .question-container {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border-radius: 10px;
+            background-color: var(--light-color);
+            box-shadow: var(--shadow);
+            display: none;
+        }
+
+        .question-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .question-number {
+            font-size: 0.9rem;
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .option {
+            padding: 1rem;
+            background-color: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .option.selected {
+            border-color: var(--accent-color);
+            background-color: rgba(6, 214, 160, 0.1);
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+
+        button {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .btn-prev {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+        }
+
+        .btn-next {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-submit {
+            background-color: var(--accent-color);
+            color: white;
+            display: none;
+        }
+
+        .btn-reset {
+            background-color: var(--secondary-color);
+            color: var(--dark-color);
+            margin-top: 1rem;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: var(--shadow);
+        }
+
+        .results-container {
+            padding: 2rem;
+            text-align: center;
+            display: none;
+        }
+
+        .results-title {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .score-container {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .score-box {
+            padding: 1.5rem;
+            border-radius: 10px;
+            width: 150px;
+            box-shadow: var(--shadow);
+        }
+
+        .correct {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .incorrect {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .score-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        .score-label {
+            font-size: 1rem;
+        }
+
+        .message {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            border-radius: 10px;
+        }
+
+        .success {
+            background-color: rgba(6, 214, 160, 0.2);
+            color: var(--dark-color);
+        }
+
+        .failure {
+            background-color: rgba(255, 107, 139, 0.2);
+            color: var(--dark-color);
+        }
+
+        .hint-container {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .hint-box {
+            background-color: var(--light-color);
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-top: 1rem;
+            text-align: left;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .reset-container {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: var(--primary-color);
+            top: 0;
+            opacity: 0;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: auto;
+            padding: 1rem;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                border-radius: 10px;
+            }
+            
+            header {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .quiz-container, .results-container {
+                padding: 1.5rem;
+            }
+            
+            .score-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Gimtadienio Quizas</h1>
+            <p class="subtitle">Atsakyk teisingai į visus klausimus ir gauk užuominą!</p>
+        </header>
+
+        <div class="quiz-container">
+            <div class="question-container active" id="question1">
+                <div class="question-number">Klausimas 1 iš 5</div>
+                <div class="question-text">Koks yra mėgstamiausias mano (tavo) spalva?</div>
+                <div class="options-container">
+                    <div class="option" data-value="a">Mėlyna</div>
+                    <div class="option" data-value="b">Rožinė</div>
+                    <div class="option" data-value="c">Žalia</div>
+                    <div class="option" data-value="d">Violetinė</div>
+                </div>
+            </div>
+
+            <div class="question-container" id="question2">
+                <div class="question-number">Klausimas 2 iš 5</div>
+                <div class="question-text">Kur mes pirmą kartą susitikome?</div>
+                <div class="options-container">
+                    <div class="option" data-value="a">Mokykloje</div>
+                    <div class="option" data-value="b">Kavos parduotuvėje</div>
+                    <div class="option" data-value="c">Draugų vakarėlyje</div>
+                    <div class="option" data-value="d">Bibliotekoje</div>
+                </div>
+            </div>
+
+            <div class="question-container" id="question3">
+                <div class="question-number">Klausimas 3 iš 5</div>
+                <div class="question-text">Koks yra mėgstamiausias mūsų bendras užsiėmimas?</div>
+                <div class="options-container">
+                    <div class="option" data-value="a">Žiūrėti filmus</div>
+                    <div class="option" data-value="b">Keliauti</div>
+                    <div class="option" data-value="c">Gaminti kartu</div>
+                    <div class="option" data-value="d">Lankytis gamtoje</div>
+                </div>
+            </div>
+
+            <div class="question-container" id="question4">
+                <div class="question-number">Klausimas 4 iš 5</div>
+                <div class="question-text">Kokia yra mano (tavo) mėgstamiausia gėlė?</div>
+                <div class="options-container">
+                    <div class="option" data-value="a">Rožė</div>
+                    <div class="option" data-value="b">Tulpe</div>
+                    <div class="option" data-value="c">Orchidėja</div>
+                    <div class="option" data-value="d">Saulėgrąža</div>
+                </div>
+            </div>
+
+            <div class="question-container" id="question5">
+                <div class="question-number">Klausimas 5 iš 5</div>
+                <div class="question-text">Koks yra mėgstamiausias mūsų atsiminimas?</div>
+                <div class="options-container">
+                    <div class="option" data-value="a">Pirmasis pasimatymas</div>
+                    <div class="option" data-value="b">Kelionė prie jūros</div>
+                    <div class="option" data-value="c">Kalėdos kartu</div>
+                    <div class="option" data-value="d">Staigmenos vakarėlis</div>
+                </div>
+            </div>
+
+            <div class="navigation">
+                <button class="btn-prev" id="prevBtn">Atgal</button>
+                <button class="btn-next" id="nextBtn">Kitas</button>
+                <button class="btn-submit" id="submitBtn">Pateikti atsakymus</button>
+            </div>
+        </div>
+
+        <div class="results-container" id="resultsContainer">
+            <h2 class="results-title">Quiz Rezultatai</h2>
+            
+            <div class="score-container">
+                <div class="score-box correct">
+                    <div class="score-number" id="correctScore">0</div>
+                    <div class="score-label">Teisingi atsakymai</div>
+                </div>
+                <div class="score-box incorrect">
+                    <div class="score-number" id="incorrectScore">0</div>
+                    <div class="score-label">Netesingi atsakymai</div>
+                </div>
+            </div>
+
+            <div class="message" id="resultMessage">
+                <!-- Čia bus atvaizduojamas pranešimas pagal rezultatus -->
+            </div>
+
+            <div class="hint-container" id="hintContainer">
+                <button id="hintBtn">Atsiimk užuominą</button>
+                <div class="hint-box" id="hintBox">
+                    <!-- Čia bus atvaizduojama užuomina -->
+                </div>
+            </div>
+
+            <div class="reset-container" id="resetContainer">
+                <button class="btn-reset" id="resetBtn">Bandyti dar kartą</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        Sukurta su meile tau ❤️
+    </footer>
+
+    <script>
+        // Quiz klausimai ir teisingi atsakymai
+        const questions = [
+            {
+                question: "Koks yra mėgstamiausias mano (tavo) spalva?",
+                options: ["Mėlyna", "Rožinė", "Žalia", "Violetinė"],
+                correctAnswer: "b"
+            },
+            {
+                question: "Kur mes pirmą kartą susitikome?",
+                options: ["Mokykloje", "Kavos parduotuvėje", "Draugų vakarėlyje", "Bibliotekoje"],
+                correctAnswer: "c"
+            },
+            {
+                question: "Koks yra mėgstamiausias mūsų bendras užsiėmimas?",
+                options: ["Žiūrėti filmus", "Keliauti", "Gaminti kartu", "Lankytis gamtoje"],
+                correctAnswer: "a"
+            },
+            {
+                question: "Kokia yra mano (tavo) mėgstamiausia gėlė?",
+                options: ["Rožė", "Tulpe", "Orchidėja", "Saulėgrąža"],
+                correctAnswer: "d"
+            },
+            {
+                question: "Koks yra mėgstamiausias mūsų atsiminimas?",
+                options: ["Pirmasis pasimatymas", "Kelionė prie jūros", "Kalėdos kartu", "Staigmenos vakarėlis"],
+                correctAnswer: "b"
+            }
+        ];
+
+        // Užuomina, kuri bus rodoma jei atsakys teisingai į visus klausimus
+        const hintMessage = "Sveikinu! Tu atsakei teisingai į visus klausimus! Tavo užuomina: Dovanos slėptuvė yra virtuvėje, ant viryklės. Ten rasai mažą dėžutę su tavo dovana. Laimingo gimtadienio, myliu tave! ❤️";
+
+        // Kintamieji
+        let currentQuestion = 0;
+        let userAnswers = new Array(questions.length).fill(null);
+        let quizCompleted = false;
+
+        // DOM elementai
+        const questionContainers = document.querySelectorAll('.question-container');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const correctScore = document.getElementById('correctScore');
+        const incorrectScore = document.getElementById('incorrectScore');
+        const resultMessage = document.getElementById('resultMessage');
+        const hintContainer = document.getElementById('hintContainer');
+        const hintBtn = document.getElementById('hintBtn');
+        const hintBox = document.getElementById('hintBox');
+        const resetContainer = document.getElementById('resetContainer');
+        const resetBtn = document.getElementById('resetBtn');
+
+        // Funkcija rodanti dabartinį klausimą
+        function showQuestion(index) {
+            questionContainers.forEach(container => {
+                container.classList.remove('active');
+            });
+            
+            questionContainers[index].classList.add('active');
+            
+            // Atnaujinti mygtukų būseną
+            prevBtn.disabled = index === 0;
+            nextBtn.style.display = index === questions.length - 1 ? 'none' : 'block';
+            submitBtn.style.display = index === questions.length - 1 ? 'block' : 'none';
+            
+            // Pažymėti jau pasirinktą atsakymą
+            if (userAnswers[index] !== null) {
+                const options = questionContainers[index].querySelectorAll('.option');
+                options.forEach(option => {
+                    if (option.dataset.value === userAnswers[index]) {
+                        option.classList.add('selected');
+                    }
+                });
+            }
+        }
+
+        // Funkcija atsakymų pasirinkimui
+        function selectOption(optionElement) {
+            const questionContainer = optionElement.closest('.question-container');
+            const options = questionContainer.querySelectorAll('.option');
+            
+            // Pašalinti pasirinkimą iš visų variantų
+            options.forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Pažymėti pasirinktą variantą
+            optionElement.classList.add('selected');
+            
+            // Išsaugoti atsakymą
+            const questionIndex = Array.from(questionContainers).indexOf(questionContainer);
+            userAnswers[questionIndex] = optionElement.dataset.value;
+        }
+
+        // Funkcija quiz pabaigai
+        function finishQuiz() {
+            // Apskaičiuoti rezultatus
+            let correctCount = 0;
+            let incorrectCount = 0;
+            
+            for (let i = 0; i < questions.length; i++) {
+                if (userAnswers[i] === questions[i].correctAnswer) {
+                    correctCount++;
+                } else {
+                    incorrectCount++;
+                }
+            }
+            
+            // Atnaujinti rezultatų skaičius
+            correctScore.textContent = correctCount;
+            incorrectScore.textContent = incorrectCount;
+            
+            // Parodyti pranešimą pagal rezultatus
+            if (correctCount === questions.length) {
+                resultMessage.textContent = "Sveikinu! Tu atsakei teisingai į visus klausimus! Dabar gali atsiimti užuominą.";
+                resultMessage.className = "message success";
+                hintContainer.style.display = "block";
+                resetContainer.style.display = "none";
+            } else {
+                resultMessage.textContent = `Deja, tu atsakei teisingai tik į ${correctCount} iš ${questions.length} klausimų. Bandyk dar kartą, kad gautum užuominą!`;
+                resultMessage.className = "message failure";
+                hintContainer.style.display = "none";
+                resetContainer.style.display = "block";
+            }
+            
+            // Perjungti į rezultatų rodinį
+            document.querySelector('.quiz-container').style.display = 'none';
+            resultsContainer.style.display = 'block';
+            
+            // Jei visi atsakymai teisingi, sukurti konfeti
+            if (correctCount === questions.length) {
+                createConfetti();
+            }
+            
+            quizCompleted = true;
+        }
+
+        // Funkcija quiz perkrovimui
+        function resetQuiz() {
+            // Nustatyti pradines reikšmes
+            currentQuestion = 0;
+            userAnswers = new Array(questions.length).fill(null);
+            quizCompleted = false;
+            
+            // Pašalinti visus pasirinkimus
+            document.querySelectorAll('.option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Perjungti atgal į quiz rodinį
+            resultsContainer.style.display = 'none';
+            document.querySelector('.quiz-container').style.display = 'block';
+            
+            // Rodyti pirmą klausimą
+            showQuestion(currentQuestion);
+            
+            // Paslėpti užuominos langą, jei jis atidarytas
+            hintBox.style.display = 'none';
+            hintBtn.style.display = 'block';
+        }
+
+        // Funkcija konfeti efektui
+        function createConfetti() {
+            const colors = ['#ff6b8b', '#ffd166', '#40c057', '#118ab2', '#073b4c'];
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.animation = `confettiFall ${Math.random() * 3 + 2}s linear forwards`;
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                document.body.appendChild(confetti);
+                
+                // Pašalinti konfeti po animacijos
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+
+        // Įvykių klausytojai
+        document.querySelectorAll('.option').forEach(option => {
+            option.addEventListener('click', function() {
+                selectOption(this);
+            });
+        });
+
+        prevBtn.addEventListener('click', function() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion(currentQuestion);
+            }
+        });
+
+        nextBtn.addEventListener('click', function() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                showQuestion(currentQuestion);
+            }
+        });
+
+        submitBtn.addEventListener('click', finishQuiz);
+
+        hintBtn.addEventListener('click', function() {
+            hintBox.textContent = hintMessage;
+            hintBox.style.display = 'block';
+            this.style.display = 'none';
+        });
+
+        resetBtn.addEventListener('click', resetQuiz);
+
+        // Pradėti quizą
+        showQuestion(currentQuestion);
+    </script>
+</body>
+</html>
